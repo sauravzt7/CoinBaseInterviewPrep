@@ -79,7 +79,7 @@ class GreedyFeeCalculator implements IFeeCalculator{
     @Override
     public List<Transaction> calculateMaxFee(List<Transaction> transactions, int blockSize) {
 
-        transactions.sort(Comparator.comparing(Transaction::getFeePerSize));
+        transactions.sort((t1, t2) -> Double.compare(t2.getFeePerSize(), t1.getFeePerSize()));
         List<Transaction> result = new ArrayList<Transaction>();
 
         int currentSize = 0;
@@ -119,7 +119,7 @@ class TopoLogicalGreedyFeeCalculator implements IFeeCalculator{
                 pq.add(e.getKey());
             }
         }
-        int remainingSize = 0;
+        int remainingSize = blockSize;
         List<Transaction> result = new ArrayList<Transaction>();
         while(!pq.isEmpty() && remainingSize > 0){
             Transaction t = pq.poll();
