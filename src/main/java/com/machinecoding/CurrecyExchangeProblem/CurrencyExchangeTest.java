@@ -11,7 +11,7 @@ class Edge{
     Edge(String from, String to, double weight) {
         this.from = from;
         this.to = to;
-        this.weight = -Math.log(weight); // Store -log(rate) for Bellman-Ford as we want to minimize the product
+        this.weight = -Math.log(weight); // Convert rate to -log(rate) for Bellman-Ford
     }
 }
 
@@ -138,7 +138,7 @@ class CurrencyExchangeBellmanFord implements ICurrencyExchange {
             current = parent.get(current);
         }
 
-        // Step 4: Convert -log(rate) back to rate
+        // Step 4: Convert -log(rate) back to rate using exp(antilog)
         double rate = Math.exp(-dist.get(dest));
 
         return new Result(rate, path, hasNegativeCycle);

@@ -101,16 +101,16 @@ public class CustomIteratorTest{
         Iterator<Integer> oddIterator = new OddIterator();
         Iterator<Integer> evenIterator = new EvenIterator();
 
-//        while(oddIterator.hasNext()) {
-//            System.out.println("Odd: " + oddIterator.next());
-//        }
+        while(oddIterator.hasNext()) {
+            System.out.println("Odd: " + oddIterator.next());
+        }
 
-//        Iterator<Integer> rangeIterator = new RangeIterator(0, 10, 2);
-//
-//        System.out.println("Range Iterator");
-//        while(rangeIterator.hasNext()){
-//            System.out.println( rangeIterator.next());
-//        }
+        Iterator<Integer> rangeIterator = new RangeIterator(0, 10, 2);
+
+        System.out.println("Range Iterator");
+        while(rangeIterator.hasNext()){
+            System.out.println( rangeIterator.next());
+        }
 
         List<Integer> list1 = new ArrayList<>(List.of(1, 2, 3, 4, 5));
         List<Integer> list2 = new ArrayList<>(List.of(6, 7, 8, 9, 10));
