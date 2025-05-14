@@ -2,6 +2,8 @@ package com.machinecoding.TransactionQuestoin;
 
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -137,7 +139,6 @@ class ORFilter implements Criteria{
 
 interface Pagination{
     List<Transaction> paginate(String transactionId, int pageSize);
-
 }
 
 class TransactionRepository{
@@ -156,14 +157,16 @@ class TransactionRepository{
     }
 
     public List<Transaction> findTransactionAfterId(String transactionId, int pageSize){
-        int startIndex = 0;
-        for(Transaction transaction : transactions){
-            if(transaction.transactionId.equals(transactionId)){
-                break;
-            }
-            startIndex++;
+
+        int index = -1;
+        List<Transaction> sortedTransactions = transactions.stream().sorted(Comparator.comparing(t -> t.transactionId)).toList();
+        // we can use binary search to find the index of the transactionId
+        index = Collections.binarySearch(sortedTransactions, new Transaction(transactionId, "", 0.0, LocalDateTime.now()), (t1, t2) -> t1.transactionId.compareTo(t2.transactionId));
+        System.out.println("Index: " + index);
+        if(index == -1){
+            return Collections.emptyList();
         }
-        return transactions.subList(startIndex + 1, Math.min(startIndex + 1 + pageSize, transactions.size()));
+        return transactions.subList(index + 1, Math.min(index + 1 + pageSize, transactions.size()));
     }
 
 }

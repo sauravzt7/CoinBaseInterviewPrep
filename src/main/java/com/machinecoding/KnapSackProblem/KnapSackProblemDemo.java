@@ -103,7 +103,6 @@ class TopoLogicalGreedyFeeCalculator implements IFeeCalculator{
     public List<Transaction> calculateMaxFee(List<Transaction> transactions, int blockSize) {
 
         Map<Transaction, Integer> indegree = new HashMap<>();
-
         PriorityQueue<Transaction> pq = new PriorityQueue<>((t1, t2) -> Double.compare(t2.getFeePerSize(), t1.getFeePerSize()));
 
 
