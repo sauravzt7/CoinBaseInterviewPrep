@@ -10,14 +10,14 @@ class NFTGenerator {
         List<Map<String, String>> result = new ArrayList<>();
 
         for(int i = 0; i < n; i++){
-            Map<String, String> map = new HashMap<>();
-            for(Map.Entry<String, List<String>> entry: properties.entrySet()){
-                String key = entry.getKey();
-                List<String> values = entry.getValue();
+            Map<String, String> character = new HashMap<>();
+            for(Map.Entry<String, List<String>> entrySet: properties.entrySet()){
+                String key = entrySet.getKey();
+                List<String> values = entrySet.getValue();
                 String randomValue = values.get(random.nextInt(values.size()));
-                map.put(key, randomValue);
+                character.put(key, randomValue);
             }
-            result.add(map);
+            result.add(character);
         }
         return result;
     }
@@ -65,21 +65,24 @@ class NFTGenerator {
         for (Map.Entry<String, Map<String, String>> entry : propertiesWithRarity.entrySet()) {
             String property = entry.getKey();
             Map<String, String> valuesWithRarity = entry.getValue();
-            List<String> weightedList = new ArrayList<>();
-
-            for (Map.Entry<String, String> valueEntry : valuesWithRarity.entrySet()) {
-                String value = valueEntry.getKey();
-                String rarity = valueEntry.getValue();
-
-                int weight = rarity.equalsIgnoreCase("common") ? 10 : 1;
-                for (int i = 0; i < weight; i++) {
-                    weightedList.add(value);
-                }
-            }
+            List<String> weightedList = getWeightedList(valuesWithRarity);
             weightedProperties.put(property, weightedList);
         }
-
         return generateUniqueRandomCharacters(weightedProperties, n);
+    }
+
+    private List<String> getWeightedList(Map<String, String> valuesWithRarity){
+        List<String> weightedList = new ArrayList<>();
+
+        for(Map.Entry<String, String> entry: valuesWithRarity.entrySet()){
+            String trait = entry.getKey();
+            String rarityType = entry.getValue();
+            int weight = rarityType.equalsIgnoreCase("common") ? 10 : 1;
+            for(int i = 0; i < weight; i++){
+                weightedList.add(trait);
+            }
+        }
+        return weightedList;
     }
 }
 
