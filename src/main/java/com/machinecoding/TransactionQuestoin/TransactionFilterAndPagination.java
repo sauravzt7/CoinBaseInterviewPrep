@@ -137,13 +137,26 @@ class ORFilter implements Criteria{
     }
 }
 
-interface Pagination{
-    List<Transaction> paginate(String transactionId, int pageSize);
+class PaginatedResult{
+    List<Transaction> transactions;
+    String nextPageToken;
+
+    PaginatedResult(List<Transaction> transactions, String nextPageToken) {
+        this.transactions = transactions;
+        this.nextPageToken = nextPageToken;
+    }
+
+    public String toString(){
+        return "PaginatedResult{" +
+                "transactions=" + transactions +
+                ", nextPageToken='" + nextPageToken + '\'' +
+                '}';
+    }
 }
 
 class TransactionRepository{
 
-    private List<Transaction> transactions = List.of(
+    final List<Transaction> transactions = List.of(
             new Transaction("T1", "user1", 100.0, LocalDateTime.now()),
             new Transaction("T2", "user2", 200.0, LocalDateTime.now()),
             new Transaction("T3", "user3", 300.0, LocalDateTime.now()),
@@ -152,7 +165,7 @@ class TransactionRepository{
     );
 
     //fetch the first page of transactions
-    public List<Transaction> findFirstTransactions(int pageSize){
+    public List<Transaction> findFirstPageTransactions(int pageSize){
         return transactions.subList(0, Math.min(pageSize, transactions.size()));
     }
 
@@ -171,24 +184,55 @@ class TransactionRepository{
 
 }
 
-class TransactionPagination {
+
+class CursorPagination {
 
     TransactionRepository repository;
-    public TransactionPagination() {
+    public CursorPagination() {
         this.repository = new TransactionRepository();
     }
 
-    public List<Transaction> getTransactionsWithCursorPagination(String lastTransactionId, int pageSize) {
+
+    public PaginatedResult getTransactionsWithPagination(String lastTransactionId, int pageSize) {
 
         if(lastTransactionId == null || lastTransactionId.isEmpty()){
-            return repository.findFirstTransactions(pageSize);
+            List<Transaction> transactions = repository.findFirstPageTransactions(pageSize);
+            String nextPageToken = transactions.isEmpty() ? null : transactions.getLast().transactionId;
+            return new PaginatedResult(transactions, nextPageToken);
         }
 
-        return repository.findTransactionAfterId(lastTransactionId, pageSize);
-
+        List<Transaction> transactions = repository.findTransactionAfterId(lastTransactionId, pageSize);
+        String nextPageToken = transactions.isEmpty() ? null : transactions.getLast().transactionId;
+        return new PaginatedResult(transactions, nextPageToken);
     }
 }
 
+
+class LimitOffSetPagination {
+
+    TransactionRepository repository;
+    int limit;
+    int offset = 0;
+
+    public LimitOffSetPagination(int limit) {
+        this.repository = new TransactionRepository();
+        this.limit = limit;
+    }
+
+    public List<Transaction> getTransactionsWithLimitOffset(int offset) {
+        return repository.transactions.subList(offset, Math.min(offset + limit, repository.transactions.size()));
+    }
+
+    public List<Transaction> getNextPage() {
+        if(offset >= repository.transactions.size()){
+            return Collections.emptyList();
+        }
+        List<Transaction> transactions = repository.transactions.subList(offset, Math.min(offset + limit, repository.transactions.size()));
+        offset += limit;
+        return transactions;
+    }
+
+}
 
 public class TransactionFilterAndPagination {
 
@@ -217,13 +261,19 @@ public class TransactionFilterAndPagination {
 
             //
 
-            TransactionPagination transactionPagination = new TransactionPagination();
-            List<Transaction> transactions = transactionPagination.getTransactionsWithCursorPagination(null, 2);
-            System.out.println("First Page Transactions: " + transactions);
+            CursorPagination cursorPagination = new CursorPagination();
+            PaginatedResult paginatedResult1 = cursorPagination.getTransactionsWithPagination(null, 2);
+            System.out.println("Paginated Result 1: " + paginatedResult1);
 
-            transactions = transactionPagination.getTransactionsWithCursorPagination("T2", 2);
-            System.out.println("Second Page Transactions: " + transactions);
 
+            PaginatedResult paginatedResult2 = cursorPagination.getTransactionsWithPagination(paginatedResult1.nextPageToken, 2);
+            System.out.println("Paginated Result 2: " + paginatedResult2);
+
+            LimitOffSetPagination limitOffSetPagination = new LimitOffSetPagination(2);
+            List<Transaction> nextPage = limitOffSetPagination.getNextPage();
+            nextPage.forEach(System.out::println);
+            List<Transaction> transactions = limitOffSetPagination.getTransactionsWithLimitOffset(0);
+            transactions.forEach(System.out::println);
 
         }
 
