@@ -118,12 +118,12 @@ class NFTDemo {
         rareProps.put("Pattern", patternRarity);
 
 
-        List<Map<String, String>> characters = generator.generateRandomCharacters(properties, 10);
+        List<Map<String, String>> characters = generator.generateRandomCharacters(properties, 30);
         for (Map<String, String> character : characters) {
             System.out.println(character);
         }
 
-        List<Map<String, String>> uniqueCharacters = generator.generateUniqueRandomCharacters(properties, 10);
+        List<Map<String, String>> uniqueCharacters = generator.generateUniqueRandomCharacters(properties, 27);
         System.out.println(" Unique Characters: " + uniqueCharacters.size());
         uniqueCharacters.forEach(System.out::println);
 

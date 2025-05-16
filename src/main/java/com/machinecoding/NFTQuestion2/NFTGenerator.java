@@ -32,7 +32,12 @@ public class NFTGenerator {
         Map<String, Integer> attributeUsage = new HashMap<>();
 
         // Create a copy of the available limits that we'll decrease as we go
-        Map<String, Map<String, Integer>> remainingLimits = new HashMap<>(attributeLimits);
+        Map<String, Map<String, Integer>> remainingLimits = new HashMap<>();
+        for(Map.Entry<String, Map<String, Integer>> entry : attributeLimits.entrySet()) {
+            String key = entry.getKey();
+            Map<String, Integer> limits = new HashMap<>(entry.getValue());
+            remainingLimits.put(key, limits);
+        }
         List<Map<String, String>> result = new ArrayList<>();
 
         // Find all possible attribute combinations
