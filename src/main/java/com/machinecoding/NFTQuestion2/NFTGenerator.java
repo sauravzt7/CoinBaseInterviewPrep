@@ -26,6 +26,59 @@ public class NFTGenerator {
         }
     }
 
+    public static List<Map<String, String>> generateCharacterConstrainedCombinations(Map<String, Integer> characterLimits, Map<String, List<String>> attributes) {
+
+
+        List<Map<String, String>> result = new ArrayList<>();
+
+        // Create a copy of the available limits that we'll decrease as we go
+        Map<String, Integer> remainingLimits = new HashMap<>();
+
+        for(Map.Entry<String, Integer> entry : characterLimits.entrySet()) {
+            String key = entry.getKey();
+            int limit = entry.getValue();
+            remainingLimits.put(key, limit);
+        }
+
+        List<Map<String, String>> allPossible = generateAllCombinations(attributes);
+
+        for(Map<String, String> nft: allPossible){
+            Map<String, Boolean> validCharacter = new HashMap<>();
+            Map<String, String> current = new HashMap<>();
+
+            // Check if this NFT would exceed any attribute limits
+            for(Map.Entry<String, String> attribute: nft.entrySet()){
+
+                String key = attribute.getKey();
+                String val = attribute.getValue();
+
+                int remaining = remainingLimits.getOrDefault(key, 0);
+                if (remaining <= 0) {
+                    continue;
+                }
+                validCharacter.put(key, true);
+                current.put(key, val);
+            }
+            if(validCharacter.isEmpty())break;
+            result.add(new HashMap<>(current));
+
+            for(Map.Entry<String, Boolean> entry: validCharacter.entrySet()){
+                String key = entry.getKey();
+                int currentLimit = remainingLimits.get(key);
+                remainingLimits.put(key, currentLimit - 1);
+            }
+
+            // If valid, add NFT and decrease available limits
+
+
+        }
+
+
+
+        return result;
+
+    }
+
     // Stage 2: Constraint-aware with correct usage limit enforcement
     public static List<Map<String, String>> generateConstrainedCombinations(Map<String, Map<String, Integer>> attributeLimits) {
         // Create tracking map for each attribute value's usage
@@ -119,5 +172,13 @@ class Main {
         // Stage 3 - With limits on total NFTs
         System.out.println("\n🎯 Bounded Constrained (max 3 NFTs):");
         NFTGenerator.generateConstrainedCombinations(limits, 3).forEach(System.out::println);
+
+        Map<String, Integer> characterLimits = new HashMap<>();
+        characterLimits.put("Background", 2);
+        characterLimits.put("Eyes", 2);
+        characterLimits.put("Hat", 3);
+
+        System.out.println("\n🎯 Bounded Constrained with Character Limits:");
+        NFTGenerator.generateCharacterConstrainedCombinations(characterLimits, attributes).forEach(System.out::println);
     }
 }
